@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kalkulator Gaya Fisika</title>
+
+<style>
+*{box-sizing:border-box;font-family:Inter,Segoe UI,Arial,sans-serif}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:linear-gradient(180deg,#eef4ff,#f8fbff);
+  display:flex;
+  justify-content:center;
+  align-items:center; /* <<< INI YANG BIKIN KE TENGAH */
+}
+
+.container{
+  text-align:center;
+  max-width:900px;
+  width:100%;
+}
+
+h1{margin-bottom:4px}
+.subtitle{color:#555;margin-bottom:40px}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:24px;
+  box-shadow:0 15px 35px rgba(0,0,0,.08);
+  cursor:pointer;
+  transition:.2s;
+}
+.card:hover{transform:translateY(-4px)}
+
+.calc{
+  display:none;
+  margin-top:40px;
+  background:#fff;
+  padding:24px;
+  border-radius:16px;
+  box-shadow:0 15px 35px rgba(0,0,0,.1);
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+button{
+  margin-top:10px;
+  padding:10px;
+  width:100%;
+  border:none;
+  border-radius:10px;
+  background:#6c7cff;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.result{
+  margin-top:15px;
+  font-weight:600;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🔬 Kalkulator Gaya Fisika</h1>
+<div class="subtitle">Pilih gaya yang ingin dihitung</div>
+
+<div class="grid">
+  <div class="card" onclick="openCalc('berat')">⚖️ Gaya Berat</div>
+  <div class="card" onclick="openCalc('normal')">📦 Gaya Normal</div>
+  <div class="card" onclick="openCalc('gesek')">🧱 Gaya Gesek</div>
+  <div class="card" onclick="openCalc('sentripetal')">🌀 Gaya Sentripetal</div>
+  <div class="card" onclick="openCalc('pegas')">🌀 Gaya Pegas</div>
+  <div class="card" onclick="openCalc('listrik')">⚡ Gaya Listrik</div>
+  <div class="card" onclick="openCalc('gravitasi')">🌍 Gaya Gravitasi</div>
+  <div class="card" onclick="openCalc('magnet')">🧲 Gaya Magnet</div>
+</div>
+
+<div class="calc" id="calcBox">
+  <h3 id="judul"></h3>
+  <div id="inputs"></div>
+  <button onclick="hitung()">Hitung</button>
+  <div class="result" id="hasil"></div>
+</div>
+
+</div>
+
+<script>
+let mode="";
+
+function openCalc(m){
+  mode=m;
+  document.getElementById("calcBox").style.display="block";
+  document.getElementById("hasil").innerHTML="";
+  const i=document.getElementById("inputs");
+  const j=document.getElementById("judul");
+
+  const set=(t,h)=>{j.innerHTML=t;i.innerHTML=h}
+
+  if(m=="berat") set("Gaya Berat (F = m g)",
+    `<input id="m" placeholder="Massa (kg)">`);
+  if(m=="normal") set("Gaya Normal (F = m g)",
+    `<input id="m" placeholder="Massa (kg)">`);
+  if(m=="gesek") set("Gaya Gesek (F = μ N)",
+    `<input id="mu" placeholder="Koefisien gesek">
+     <input id="n" placeholder="Gaya normal (N)">`);
+  if(m=="sentripetal") set("Gaya Sentripetal (F = m v² / r)",
+    `<input id="m" placeholder="Massa (kg)">
+     <input id="v" placeholder="Kecepatan (m/s)">
+     <input id="r" placeholder="Jari-jari (m)">`);
+  if(m=="pegas") set("Gaya Pegas (F = k x)",
+    `<input id="k" placeholder="Konstanta pegas (N/m)">
+     <input id="x" placeholder="Pertambahan panjang (m)">`);
+  if(m=="listrik") set("Gaya Listrik (F = k q1 q2 / r²)",
+    `<input id="q1" placeholder="Muatan 1 (C)">
+     <input id="q2" placeholder="Muatan 2 (C)">
+     <input id="r" placeholder="Jarak (m)">`);
+  if(m=="gravitasi") set("Gaya Gravitasi (F = G m1 m2 / r²)",
+    `<input id="m1" placeholder="Massa 1 (kg)">
+     <input id="m2" placeholder="Massa 2 (kg)">
+     <input id="r" placeholder="Jarak (m)">`);
+  if(m=="magnet") set("Gaya Magnet (F = B I L)",
+    `<input id="b" placeholder="Medan magnet (T)">
+     <input id="i" placeholder="Arus (A)">
+     <input id="l" placeholder="Panjang kawat (m)">`);
+}
+
+function hitung(){
+  let F=0;
+  const g=9.8, G=6.67e-11, k=9e9;
+
+  try{
+    if(mode=="berat"||mode=="normal") F=m()*g;
+    if(mode=="gesek") F=mu()*n();
+    if(mode=="sentripetal") F=m()*v()*v()/r();
+    if(mode=="pegas") F=k_()*x();
+    if(mode=="listrik") F=k*q1()*q2()/(r()*r());
+    if(mode=="gravitasi") F=G*m1()*m2()/(r()*r());
+    if(mode=="magnet") F=b()*i()*l();
+
+    document.getElementById("hasil").innerHTML =
+      "Hasil: <b>"+Number(F).toFixed(4)+" N</b>";
+  }catch{
+    document.getElementById("hasil").innerHTML="Input tidak valid";
+  }
+}
+
+const m=()=>+id("m"), v=()=>+id("v"), r=()=>+id("r"),
+mu=()=>+id("mu"), n=()=>+id("n"),
+k_=()=>+id("k"), x=()=>+id("x"),
+q1=()=>+id("q1"), q2=()=>+id("q2"),
+m1=()=>+id("m1"), m2=()=>+id("m2"),
+b=()=>+id("b"), i=()=>+id("i"), l=()=>+id("l"),
+id=(x)=>document.getElementById(x).value;
+</script>
+
+</body>
+</html>
